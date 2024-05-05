@@ -26,8 +26,8 @@ list_files =[
     'LICENSE',
     'app.py',
     'main.py',
-    '.gitignore',
-]
+    '.gitignore'
+    ]
 
 for file in list_files:
     file_path = Path(file)
