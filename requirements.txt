@@ -1,0 +1,8 @@
+opencv-python
+face-recognition
+streamlit
+dvc
+pyYAML
+tqdm
+notebook
+-e .

@@ -1,0 +1,7 @@
+artifacts_root: artifacts
+
+image_ingestion:
+  root_dir: artifacts/image_ingestion
+  database_path: artifacts/image_ingestion/database
+  known_images_url: http://vis-www.cs.umass.edu/lfw/lfw.tgz
+  
