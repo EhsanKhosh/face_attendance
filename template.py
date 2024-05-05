@@ -23,6 +23,9 @@ list_files =[
     'setup.py',
     'research/trails.ipynb',
     'README.md',
+    'LICENSE',
+    'app.py',
+    'main.py',
     '.gitignore',
 ]
 
