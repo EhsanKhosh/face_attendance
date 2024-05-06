@@ -1,0 +1,37 @@
+people:
+  - id : 2
+    first_name: 'Cillian'
+    last_name: 'Murphy'
+    age: 47
+    gender: 'Male'
+    rating: 4.2
+  
+  - id : 1
+    first_name: 'Christian'
+    last_name: 'Bale'
+    age: 54
+    gender: 'Male'
+    rating: 4.6
+  
+  - id : 3
+    first_name: 'Daniel'
+    last_name: 'Day-lewis'
+    age: 59
+    gender: 'Male'
+    rating: 4.8
+
+  - id : 4
+    first_name: 'Emma'
+    last_name: 'Watson'
+    age: 36
+    gender: 'Female'
+    rating: 3.9
+
+  - id : 5
+    first_name: 'Keira'
+    last_name: 'Knightly'
+    age: 38
+    gender: 'Male'
+    rating: 4
+
+  

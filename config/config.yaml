@@ -3,5 +3,5 @@ artifacts_root: artifacts
 image_ingestion:
   root_dir: artifacts/image_ingestion
   database_path: artifacts/image_ingestion/database
-  image_dir: images/
-  
+  image_dir: data/images/
+  known_people_data: data/known_people.yaml

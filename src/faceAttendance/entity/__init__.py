@@ -7,3 +7,4 @@ class ImageIngestionConfig:
     root_dir : str
     database_path : str
     image_dir : str
+    known_people_data: str

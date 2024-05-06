@@ -1,3 +1,6 @@
 ./database
-./.github/
+.github/
 *.egg-info
+./artifacts/
+logs/
+__pycache__
