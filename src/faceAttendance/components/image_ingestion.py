@@ -1,26 +1,30 @@
 from faceAttendance.entity import ImageIngestionConfig
-from faceAttendance.utils.common import read_yaml
+from faceAttendance.utils.common import read_yaml, create_dirs
 from faceAttendance import logger
 from pathlib import Path
 import sqlite3
+import cv2
 import os
+import matplotlib.pyplot as plt
 
 class ImageIngestion:
     def __init__(self, image_config:ImageIngestionConfig):
         self.config = image_config
 
     def create_database(self):
-        conn = sqlite3.connect(os.path.join(self.config.database_path, 'FADatabase.db'))
+        create_dirs([self.config.root_dir, self.config.database_path])
+        database_file_path = os.path.join(self.config.database_path, 'FADatabase.db')
+        conn = sqlite3.connect(database_file_path)
         cursor = conn.cursor()
         create_table = '''
-            CREATE TABLE IF NOT EXIST known_people (
+            CREATE TABLE IF NOT EXISTS known_people (
                 id INTEGER PRIMARY KEY,
                 image BLOB,
                 first_name TEXT,
                 last_name TEXT,
                 age INTEGER,
                 gender TEXT,
-                rating INTEGER,
+                rating INTEGER
         )
         '''
         cursor.execute(create_table)
@@ -32,12 +36,12 @@ class ImageIngestion:
         conn = sqlite3.connect(os.path.join(self.config.database_path, 'FADatabase.db'))
         cursor = conn.cursor()
         insert_query = '''
-            INSERT INTO known_people (id, first_name, last_name, age, gender, rating) VALUES (?, ?, ?, ?, ?)
+            INSERT INTO known_people (first_name, last_name, age, gender, rating) VALUES (?, ?, ?, ?, ?)
             '''
 
-        people_data = read_yaml(self.config.known_people_data)
+        people_data = read_yaml(Path(self.config.known_people_data))
         for person in people_data['people']:
-            cursor.execute(insert_query, (person['id'], person['first_name'], person['last_name'], person['age'], person['gender'], person['rating']))
+            cursor.execute(insert_query, (person['first_name'], person['last_name'], person['age'], person['gender'], person['rating']))
         conn.commit()
         cursor.close()
         conn.close()
@@ -46,20 +50,22 @@ class ImageIngestion:
         conn = sqlite3.connect(os.path.join(self.config.database_path, 'FADatabase.db'))
         cursor = conn.cursor()
         image_dir = self.config.image_dir
+
         for filename in os.listdir(image_dir):
             # Extract first name and last name from filename
             first_name, last_name = filename.split('_')[0], filename.split('_')[1].split('.')[0]
-            
+
+            image_data = None
             # Query the database to retrieve corresponding row
             query = '''
             SELECT * FROM known_people WHERE first_name=? AND last_name=?
             '''
             cursor.execute(query, (first_name, last_name))
             row = cursor.fetchone()
-    
+           
             # If a corresponding row is found, insert image data into the table
             if row:
-                # Read image file as binary data
+
                 with open(os.path.join(image_dir, filename), 'rb') as f:
                     image_data = f.read()
             

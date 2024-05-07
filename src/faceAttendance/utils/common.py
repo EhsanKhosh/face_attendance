@@ -25,7 +25,6 @@ def read_yaml(file_path: Path) -> ConfigBox:
         raise e
     
 
-@ensure_annotations
 def create_dirs(dirs: List[str], verbose: bool=True):
 
     for dir in dirs:

@@ -1,6 +1,6 @@
 ./database
 .github/
 *.egg-info
-./artifacts/
+artifacts/
 logs/
 __pycache__

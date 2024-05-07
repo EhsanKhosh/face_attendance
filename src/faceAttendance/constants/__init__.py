@@ -1,4 +1,4 @@
 import os
 
-CONFIG_FILE_PATH = os.path.join('config', 'config.yaml')
+CONFIG_FILE_PATH = 'config/config.yaml'
 PARAMS_FILE_PATH = './params.yaml'

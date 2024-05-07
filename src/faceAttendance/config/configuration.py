@@ -7,10 +7,10 @@ from pathlib import Path
 class ConfigurationManger():
     def __init__(self,
                 config_path = CONFIG_FILE_PATH,
-                params_path = PARAMS_FILE_PATH) -> None:
+                params_path = PARAMS_FILE_PATH):
         self.config = read_yaml(Path(config_path))
         self.params = read_yaml(Path(params_path))
-
+ 
         create_dirs([self.config.artifacts_root])
 
     def get_image_ingestion_config(self) -> ImageIngestionConfig:
