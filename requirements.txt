@@ -8,4 +8,5 @@ notebook
 python-box
 joblib
 ensure
+numpy
 -e .

@@ -8,3 +8,9 @@ class ImageIngestionConfig:
     database_path : str
     image_dir : str
     known_people_data: str
+
+@dataclass(frozen=True)
+class ImageEncodingConfig:
+    root_dir : str
+    database: str
+    image_dir : str

@@ -2,6 +2,11 @@ artifacts_root: artifacts
 
 image_ingestion:
   root_dir: artifacts/image_ingestion
-  database_path: artifacts/image_ingestion/database
+  database_path: artifacts/database
   image_dir: data/images/
   known_people_data: data/known_people.yaml
+
+image_encoding:
+  root_dir: artifacts/image_encoding
+  database: artifacts/database/FADatabase.db
+  image_dir: data/images/

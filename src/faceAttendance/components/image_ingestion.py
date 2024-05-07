@@ -3,9 +3,8 @@ from faceAttendance.utils.common import read_yaml, create_dirs
 from faceAttendance import logger
 from pathlib import Path
 import sqlite3
-import cv2
 import os
-import matplotlib.pyplot as plt
+
 
 class ImageIngestion:
     def __init__(self, image_config:ImageIngestionConfig):

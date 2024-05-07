@@ -1,4 +1,4 @@
-from faceAttendance.entity import ImageIngestionConfig
+from faceAttendance.entity import ImageIngestionConfig,ImageEncodingConfig
 from faceAttendance.utils.common import create_dirs, read_yaml
 from faceAttendance.constants import *
 from pathlib import Path
@@ -22,4 +22,12 @@ class ConfigurationManger():
             known_people_data = config.known_people_data
         )
         return image_ingestion_config
-        
+    
+    def get_image_encoding_config(self) -> ImageEncodingConfig:
+        config = self.config.image_encoding
+        image_encoding_config = ImageEncodingConfig(
+            root_dir = config.root_dir,
+            database = config.database,
+            image_dir = config.image_dir
+        )
+        return image_encoding_config
