@@ -1,4 +1,4 @@
-from faceAttendance.entity import ImageIngestionConfig,ImageEncodingConfig
+from faceAttendance.entity import ImageIngestionConfig,ImageEncodingConfig, FaceRecognitionConfig
 from faceAttendance.utils.common import create_dirs, read_yaml
 from faceAttendance.constants import *
 from pathlib import Path
@@ -31,3 +31,15 @@ class ConfigurationManger():
             image_dir = config.image_dir
         )
         return image_encoding_config
+    
+    def get_face_recognition_config(self) -> FaceRecognitionConfig:
+        config = self.config.face_recognition
+        face_recognition_config = FaceRecognitionConfig(
+            root_dir = config.root_dir,
+            database = config.database,
+            num_cam = self.params.face_recognition.num_camera,
+            face_out_path = config.face_out_path,
+            take_picture_msg= self.params.face_recognition.take_picture_msg,
+            countdown_seconds = self.params.face_recognition.countdown_seconds
+        )
+        return face_recognition_config

@@ -14,3 +14,12 @@ class ImageEncodingConfig:
     root_dir : str
     database: str
     image_dir : str
+
+@dataclass(frozen=True)
+class FaceRecognitionConfig:
+    root_dir : str
+    database: str
+    num_cam: int
+    face_out_path: str
+    countdown_seconds: int
+    take_picture_msg: str

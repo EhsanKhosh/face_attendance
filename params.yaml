@@ -1,1 +1,5 @@
-key: value
+face_recognition:
+  num_camera: 0
+  countdown_seconds: 3
+  take_picture_msg: Get ready and smile
+  

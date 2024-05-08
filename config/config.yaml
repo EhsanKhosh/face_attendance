@@ -10,3 +10,9 @@ image_encoding:
   root_dir: artifacts/image_encoding
   database: artifacts/database/FADatabase.db
   image_dir: data/images/
+
+face_recognition:
+  root_dir: artifacts/face_recognition
+  database: artifacts/database/FADatabase.db
+  face_out_path: artifacts/face_recognition/face.jpg
+

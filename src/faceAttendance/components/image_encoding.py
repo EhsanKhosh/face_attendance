@@ -24,7 +24,7 @@ class ImageEncoding:
             nparr = np.frombuffer(image, np.uint8)
             image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-            face_encoded = face_recognition.face_encodings(image)
+            face_encoded = face_recognition.face_encodings(image)[0]
             encoded_faces_list = [face.tolist() for face in face_encoded]
             encoded_face_json = json.dumps(encoded_faces_list)
 
