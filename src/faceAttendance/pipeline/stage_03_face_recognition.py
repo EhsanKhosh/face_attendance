@@ -5,15 +5,17 @@ from faceAttendance import logger
 STAGE_NAME = 'Face Recognition'
 
 class FaceRecognitionStagePipeline:
-    def __init__(self):
-        pass
-
+    def __init__(self, run_env:str='base', take_picture=True):
+        self.run_env = run_env
+        self.take_picture = take_picture
     def main(self):
         config = ConfigurationManger()
         face_recognition_config = config.get_face_recognition_config()
-        face_recognition = FaceRecognition(face_recognition_config)
-        face_recognition.take_picture()
-        face_recognition.face_recognition()
+        self.face_recognition = FaceRecognition(face_recognition_config, self.run_env)
+        if self.take_picture:
+            self.face_recognition.take_picture()
+        self.face_recognition.face_recognition()
+        
 
 
 if __name__ == "__main__":
