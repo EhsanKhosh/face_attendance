@@ -120,6 +120,7 @@ class FaceRecognition:
                     logger.info(f"Match found for {row[2:-2]}")
                     if self.run_env == 'app':
                         st.success(f"Match found for {row[2:-2]}")
+                        st.image(row[1], caption='face that matches with your face')
                     else:
                         print(f"Match found for {row[2:-2]}")
                     

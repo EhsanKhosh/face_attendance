@@ -20,6 +20,7 @@ def handle_click(button_id):
 # Function to display content based on navigation
 def show_page(page):
     image = None
+    match = None
     if page == 'home':
         st.title('Welcome to Face Attendance')
         st.write("Choose an option below for face recognition.")
@@ -31,8 +32,22 @@ def show_page(page):
         st.write("Please wait while the webcam initializes...")
         st.subheader("Webcam Live Feed")
         # Start face recognition using webcam
-        face_recognition_pipeline = FaceRecognitionStagePipeline(run_env='app')
-        face_recognition_pipeline.main()
+        config = ConfigurationManger().get_face_recognition_config()
+        face_recognition_obj = FaceRecognition(config=config, run_env='app')
+        if st.button('Capture Image', key='capture_image'):
+            st.session_state['start_countdown'] = True
+            captured_image = face_recognition_obj.take_picture()
+            if captured_image is not None:
+                st.image(captured_image, caption='Captured Image.', use_column_width=True)
+                match = face_recognition_obj.face_recognition()
+                print(match)
+            else:
+                st.error('Captured image is not available')
+        if st.button('Register New Face', key='register_new_face'):
+            handle_click('register')
+            st.rerun()            
+            
+            
     elif page == 'upload':
         st.title('Face Recognition by Image')
         uploaded_file = st.file_uploader("Choose an image file")
@@ -45,6 +60,9 @@ def show_page(page):
                 # Start face recognition using uploaded image
                 face_recognition_pipeline = FaceRecognitionStagePipeline(run_env='app', take_picture=False)
                 face_recognition_pipeline.main()
+            if st.button('Register New Face', key='register_new_face2'):
+                    handle_click('register')
+                    st.rerun() 
         else:
             st.write("No image uploaded.")
     elif page == 'register':
