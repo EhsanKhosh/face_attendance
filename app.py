@@ -54,8 +54,11 @@ def show_page(page):
         image_provider = st.radio('Choose option for importing face image', ('Webcam', 'Upload'))
             
         if image_provider == 'Upload':
+            config = ConfigurationManger().get_face_recognition_config()
+            face_recognition_obj = FaceRecognition(config=config, run_env='app')
             if os.path.exists(previous_image_path):
-                previous_image = Image.open(previous_image_path)
+                
+                previous_image = cv2.imread(previous_image_path)
                 st.image(previous_image, caption='Previous image that you uploaded.', use_column_width=True)
                 use_prev_image = st.checkbox('Use Previous Image', value=True)
 
@@ -67,7 +70,9 @@ def show_page(page):
                         st.write("Image uploaded successfully.")
                         image_data = uploaded_file.read()
                         image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
+                        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                         st.image(image, caption='Uploaded Image.', use_column_width=True)
+                        cv2.imwrite(previous_image_path, np.asarray(image))
             else:
                 uploaded_file = st.file_uploader("Upload your face image", key="upload_image")
                 if uploaded_file is not None:
@@ -75,6 +80,8 @@ def show_page(page):
                     image_data = uploaded_file.read()
                     image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
                     st.image(image, caption='Uploaded Image.', use_column_width=True)
+                    image = cv2.cvtColor(np.asarray(image), cv2.COLOR_BGR2RGB)
+                    cv2.imwrite(previous_image_path, image)
         elif image_provider == 'Webcam':
             config = ConfigurationManger().get_face_recognition_config()
             face_recognition_obj = FaceRecognition(config=config, run_env='app')
@@ -82,11 +89,9 @@ def show_page(page):
                 st.session_state['start_countdown'] = True
                 captured_image = face_recognition_obj.take_picture()
                 if captured_image is not None:
-                    image = captured_image
-                    st.image(image, caption='Captured Image.', use_column_width=True)
-                    
-            if st.button('Stop Webcam', key='stop_webcam'):
-                st.session_state['stop_webcam'] = True
+                    st.image(captured_image, caption='Captured Image.', use_column_width=True)
+                else:
+                    st.error('Captured image is not available')
 
         with st.form('user_registration_form'):
             first_name = st.text_input('First Name')
@@ -101,27 +106,30 @@ def show_page(page):
                 target_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
                 face_encodings = face_recognition.face_encodings(target_image)
                 if face_encodings:
-                    face_encoded = face_encodings[0]
-                    encoded_faces_list = [face.tolist() for face in face_encoded]
-                    encoded_face_json = json.dumps(encoded_faces_list)
+                    if not face_recognition_obj.face_recognition():
+                        face_encoded = face_encodings[0]
+                        encoded_faces_list = [face.tolist() for face in face_encoded]
+                        encoded_face_json = json.dumps(encoded_faces_list)
 
-                    conn = sqlite3.connect('/home/ehsan/PycharmProjects/Computer-Vision/face_attendance/artifacts/database/FADatabase.db')
-                    cursor = conn.cursor()
-                    insert_query = '''
-                        INSERT INTO known_people (image, first_name, last_name, age, gender, face_encoded) VALUES (?, ?, ?, ?, ?, ?)
-                    '''
-                    _, image_encoded = cv2.imencode('.jpg', image)
-                    image_bin = sqlite3.Binary(image_encoded)
-                    cursor.execute(insert_query, (image_bin, first_name, last_name, age, gender, encoded_face_json))
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
-                    st.write("Registration completed successfully.")
-                    st.write('First name: ' + first_name)
-                    st.write('Last name: ' + last_name)
-                    st.write('Age: ' + str(age))
-                    st.write('Gender: ' + gender)
-                    st.image(image, caption='Registered Image.', use_column_width=True)
+                        conn = sqlite3.connect('/home/ehsan/PycharmProjects/Computer-Vision/face_attendance/artifacts/database/FADatabase.db')
+                        cursor = conn.cursor()
+                        insert_query = '''
+                            INSERT INTO known_people (image, first_name, last_name, age, gender, face_encoded) VALUES (?, ?, ?, ?, ?, ?)
+                        '''
+                        _, image_encoded = cv2.imencode('.jpg', image)
+                        image_bin = sqlite3.Binary(image_encoded)
+                        cursor.execute(insert_query, (image_bin, first_name, last_name, age, gender, encoded_face_json))
+                        conn.commit()
+                        cursor.close()
+                        conn.close()
+                        st.write("Registration completed successfully.")
+                        st.write('First name: ' + first_name)
+                        st.write('Last name: ' + last_name)
+                        st.write('Age: ' + str(age))
+                        st.write('Gender: ' + gender)
+                        st.image(image, caption='Registered Image.', use_column_width=True)
+                    else:
+                        st.error("Your face is registered before.You can try face attendance options.")
                 else:
                     st.error("No face detected in the image. Please upload a different image.")
             else:

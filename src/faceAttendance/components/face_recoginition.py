@@ -39,7 +39,9 @@ class FaceRecognition:
         if countdown < 0:
             cv2.imwrite(self.config.face_out_path, frame)
             logger.info("Image captured successfully!")
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             return False, frame, None, True
+        
         return True, frame, countdown, False
 
     def take_picture(self):
@@ -121,7 +123,7 @@ class FaceRecognition:
                     else:
                         print(f"Match found for {row[2:-2]}")
                     
-                    return
+                    return True
 
 
             else:
@@ -129,8 +131,10 @@ class FaceRecognition:
                     st.warning("No match found")
                     
                 logger.info("No match found")
+                conn.close()
+                return False
 
 
-            conn.close()
+            
             
                         
