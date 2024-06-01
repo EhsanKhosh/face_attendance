@@ -79,13 +79,11 @@ def show_page(page):
             config = ConfigurationManger().get_face_recognition_config()
             face_recognition_obj = FaceRecognition(config=config, run_env='app')
             if st.button('Capture Image', key='capture_image'):
-                print('kir to donya')
                 st.session_state['start_countdown'] = True
                 captured_image = face_recognition_obj.take_picture()
                 if captured_image is not None:
                     image = captured_image
                     st.image(image, caption='Captured Image.', use_column_width=True)
-                    print('zart')
                     
             if st.button('Stop Webcam', key='stop_webcam'):
                 st.session_state['stop_webcam'] = True
