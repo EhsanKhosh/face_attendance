@@ -10,11 +10,37 @@ from faceAttendance.entity import FaceRecognitionConfig
 import streamlit as st
 from faceAttendance import logger
 
+
 class FaceRecognition:
     def __init__(self, config: FaceRecognitionConfig, run_env: str='base'):
         self.config = config
         self.run_env = run_env
-        self.FRAME_WINDOW = st.image([])
+        self.FRAME_WINDOW = st.image([]) if run_env == 'app' else None
+        self.countdown_active = False
+        self.start_time = None
+        self.loop_break = False
+
+    def _display_frame(self, frame, countdown=None):
+        if countdown is not None:
+            cv2.putText(frame, str(countdown), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(frame, self.config.take_picture_msg, (100, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
+
+        if self.run_env == 'app':
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            self.FRAME_WINDOW.image(frame)
+        elif self.run_env == 'base':
+            cv2.imshow('Webcam', frame)
+
+    def _handle_countdown(self, frame):
+        current_time = time.time()
+        elapsed_time = current_time - self.start_time
+        countdown = self.config.countdown_seconds - int(elapsed_time)
+
+        if countdown < 0:
+            cv2.imwrite(self.config.face_out_path, frame)
+            logger.info("Image captured successfully!")
+            return False, frame, None, True
+        return True, frame, countdown, False
 
     def take_picture(self):
         create_dirs([self.config.root_dir])
@@ -22,57 +48,46 @@ class FaceRecognition:
 
         if not cap.isOpened():
             logger.error("Error: Could not open webcam")
-            return
+            return None
 
-        countdown_duration = self.config.countdown_seconds  # seconds
-        countdown = countdown_duration
-        countdown_active = False
-        take_picture_button_clicked = st.button('Take Picture')
-        stop_webcam = st.button('Stop webcam')
-        key = None
         while True:
-            # Capture frame-by-frame
             ret, frame = cap.read()
-
-            if ret:
-                # Display the frame
-                if countdown_active:
-                    # Display countdown on the frame
-                    current_time = time.time()
-                    elapsed_time = current_time - start_time
-                    countdown = countdown_duration - int(elapsed_time)
-
-                    # Break if countdown is over
-                    if countdown < 0:
-                        cv2.imwrite(self.config.face_out_path, frame)
-                        print("Last frame saved successfully as 'face.jpg'!")
-                        break
-                    cv2.putText(frame, str(countdown), (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
-                    cv2.putText(frame, self.config.take_picture_msg, (100, 50), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
-
-                if self.run_env == 'base':
-                    cv2.imshow('Webcam', frame)
-                    # Check for key press
-                    key = cv2.waitKey(1)
-
-                # Start countdown if 'p' is pressed
-
-                elif self.run_env == 'app':
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    key = cv2.waitKey(1)
-                    self.FRAME_WINDOW.image(frame)
-
-                if (key == ord('p') or take_picture_button_clicked) and not countdown_active:
-                    countdown_active = True
-                    start_time = time.time()
-
-                if key == ord('q') or stop_webcam:
-                    break
-
-            else:
+            if not ret:
                 logger.error("Error: Could not read frame from webcam")
                 break
-                
+
+            if self.countdown_active:
+                self.countdown_active, frame, countdown, self.loop_break = self._handle_countdown(frame)
+                self._display_frame(frame, countdown)
+            else:
+                self._display_frame(frame)
+
+            if self.run_env == 'app':
+                if st.session_state.get('start_countdown', False):
+                    self.countdown_active = True
+                    self.start_time = time.time()
+                    st.session_state['start_countdown'] = False
+                if st.session_state.get('stop_webcam', False):
+                    break
+                if self.loop_break:
+                    return frame
+
+            elif self.run_env == 'base':
+                key = cv2.waitKey(1)
+                if key == ord('p') and not self.countdown_active:
+                    self.countdown_active = True
+                    self.start_time = time.time()
+                if key == ord('q'):
+                    break
+
+        cap.release()
+        if self.run_env == 'base':
+            cv2.destroyAllWindows()
+
+        if self.countdown_active:
+            return frame
+        return None
+    
     def face_recognition(self):
         conn = sqlite3.connect(self.config.database)
         cursor = conn.cursor()
@@ -112,7 +127,9 @@ class FaceRecognition:
             else:
                 if self.run_env == 'app':
                     st.warning("No match found")
+                    
                 logger.info("No match found")
+
 
             conn.close()
             
