@@ -97,8 +97,8 @@ def show_page(page):
                     st.write("Image uploaded successfully.")
                     image_data = uploaded_file.read()
                     image = cv2.imdecode(np.frombuffer(image_data, np.uint8), cv2.IMREAD_COLOR)
-                    st.image(image, caption='Uploaded Image.', use_column_width=True)
                     image = cv2.cvtColor(np.asarray(image), cv2.COLOR_BGR2RGB)
+                    st.image(image, caption='Uploaded Image.', use_column_width=True)
                     cv2.imwrite(previous_image_path, image)
         elif image_provider == 'Webcam':
             config = ConfigurationManger().get_face_recognition_config()
@@ -121,7 +121,7 @@ def show_page(page):
         if submit_button:
             image = cv2.imread(previous_image_path, cv2.COLOR_BGR2RGB)
             if image is not None:
-                target_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                target_image = image
                 face_encodings = face_recognition.face_encodings(target_image)
                 if face_encodings:
                     if not face_recognition_obj.face_recognition():
